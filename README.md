@@ -18,6 +18,7 @@ Results were produced with R 4.5.1, brms 2.23.0, cmdstanr 0.8.0, CmdStan 2.38.0,
 ## Data preparation
 
 - BEXLD1 is used for 1983–2001 and SUXLDA1A for 2002–2023 (Table R1).
+- Neither death table states whether deaths are assigned to the district of residence or the district of death. The discontinued table SUXLDA1 (deaths by cause, 1995–2013) from the same cause-of-death register assigns each death to the district where the deceased had an address. Together with the close agreement of BEXLD1 and SUXLDA1A in 2002–2010 (Table R1), this indicates that both tables use residence, consistent with the population denominators.
 - Two district names in BEXLD1 were harmonized: Avanersuaq to Qaanaaq and Illoqqortoormiut to Ittoqqortoormiit.
 - Missing values ("-") occur only in the count columns and denote zero.
 - Ivittuut is excluded: it recorded no suicides, and its population fell from 233 in 1983 to zero by 2020.

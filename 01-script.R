@@ -8,7 +8,7 @@
 rm(list = ls())
 library(brms)
 
-setwd("C:/Users/beadl/Documents/Github/glsts")
+setwd("C:/Users/XXX/glsts")
 set.seed(82)
 
 # Reading StatBank files, where "-" means zero
