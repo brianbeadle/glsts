@@ -54,7 +54,34 @@ Following Richardson et al. (2004), a posterior probability of an increase above
 | Women | 104 | 108 |
 | Men | 310 | 314 |
 
-85.6% of annual district counts (both sexes) agree exactly.
+85.6% of annual district counts (both sexes, 153 district-years) agree exactly, and 98.7% agree within one suicide. The 22 district-years that disagree are listed below; 20 differ by one suicide and 2 by two.
+
+| Year | District | BEXLD1 | SUXLDA1A |
+| --- | --- | ---: | ---: |
+| 2003 | Nanortalik | 3 | 4 |
+| 2003 | Paamiut | 3 | 4 |
+| 2003 | Ilulissat | 5 | 6 |
+| 2003 | Uummannaq | 4 | 3 |
+| 2003 | Tasiilaq | 4 | 6 |
+| 2004 | Tasiilaq | 10 | 11 |
+| 2005 | Nanortalik | 0 | 1 |
+| 2005 | Narsaq | 2 | 1 |
+| 2005 | Qasigiannguit | 3 | 2 |
+| 2005 | Tasiilaq | 7 | 6 |
+| 2006 | Nanortalik | 1 | 0 |
+| 2006 | Sisimiut | 4 | 3 |
+| 2007 | Qaanaaq | 1 | 2 |
+| 2008 | Nuuk | 7 | 8 |
+| 2008 | Sisimiut | 5 | 4 |
+| 2008 | Ilulissat | 3 | 4 |
+| 2009 | Qaqortoq | 3 | 5 |
+| 2009 | Sisimiut | 3 | 4 |
+| 2009 | Kangaatsiaq | 1 | 2 |
+| 2009 | Ilulissat | 4 | 3 |
+| 2009 | Qaanaaq | 0 | 1 |
+| 2010 | Nanortalik | 2 | 3 |
+
+The agreement is consistent with routine register revisions but does not by itself prove that both tables assign deaths by the same rule; residence-based assignment in both tables is an inference (see Data preparation).
 
 ### Table R2. National suicide rates by sex and age, 17 districts, 1983–2023 (per 100,000)
 
