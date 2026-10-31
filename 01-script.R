@@ -63,6 +63,12 @@ print(xtabs(n ~ sex + src, ov))
 dyx <- xtabs(n ~ year + district + src, ov)
 print(round(100 * mean(dyx[, , "new"] == dyx[, , "old"]), 1))
 
+# District-years where the two tables disagree
+dis <- which(dyx[, , "new"] != dyx[, , "old"], arr.ind = TRUE)
+print(data.frame(year = rownames(dyx)[dis[, 1]], 
+                 district = colnames(dyx)[dis[, 2]],
+                 old = dyx[, , "old"][dis], new = dyx[, , "new"][dis]))
+xcvb
 # Old table to 2001, new table from 2002
 d <- subset(d, (src == "old" & year <= 2001) | (src == "new" & year >= 2002))
 
