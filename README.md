@@ -1,6 +1,6 @@
 # Sex-specific suicide trends in Greenland's small districts, 1983–2023
 
-Replication material for the Short Communication "Sex-specific suicide trends in Greenland's small districts, 1983–2023" (*Mental Health & Prevention*). The tables below give the details that the article refers to as "see the online repository".
+Replication material for the Short Communication "Sex-specific suicide trends in Greenland's small districts, 1983–2023" (*Mental Health & Prevention*). This README gives the model equations, priors, diagnostics, and additional tables that the article refers to as "see repository".
 
 ## Contents
 
@@ -8,6 +8,20 @@ Replication material for the Short Communication "Sex-specific suicide trends in
 - `BEXLD1_20261022-190132.csv`: suicide deaths by year, district, sex, and single year of age, 1983–2010 (StatBank Greenland, archived table BEXLD1, cause "E48 Suicide").
 - `SUXLDA1A_20261022-190231.csv`: deaths with underlying cause "Suicide and attempted suicide" by district, sex, and single year of age, 2002–2023 (StatBank Greenland; displayed as table SUELDA1A, downloaded as SUXLDA1A). The category contains deaths only.
 - `BEXSTC_20261022-190009.csv`: population on 1 January by district, sex, and single year of age, 1977–2026 (StatBank Greenland, table BEXSTC).
+
+## Where the article refers to this repository
+
+| Article | Details here |
+| --- | --- |
+| 2.1 Data, agreement of the two death tables and assignment by residence | Data preparation; Table R1 |
+| 2.2 Statistical analysis, expected suicides and national rates | Model equations; Table R2 |
+| 2.2 Statistical analysis, "Direct standardization gives similar results" | Table R3 |
+| 2.2 Statistical analysis, full specification, priors, and convergence diagnostics | Model equations; Model specification; Table R4 |
+| 2.2 Statistical analysis, stacking | Stacking; Table R5 |
+| 3 Results, East Greenland change ratio across candidate models | Table R9 |
+| 3 Results, conclusions under each candidate model and the negative binomial model | Table R9 |
+| 3 Results, largest male count and the simulated interval | Table R10 |
+| Table 1 | Tables R6 and R7 |
 
 ## Running the script
 
@@ -26,11 +40,33 @@ Results were produced with R 4.5.1, brms 2.23.0, cmdstanr 0.8.0, CmdStan 2.38.0,
 - All 17 districts are present in every year of all three tables. No district's population changes by more than 10.4% between consecutive years in 1983–2024, so there is no indication of boundary changes.
 - The 17 districts contain at least 98.5% of Greenland's population in every year.
 - Mid-year population is the average of the populations on 1 January of the year and the next.
-- The analysis includes 1,972 suicides (1,508 men, 464 women) and 697 district-years for each sex.
+- The analysis includes 1,972 suicides (1,508 men, 464 women) and 697 district-years for each sex (17 districts over 41 years).
+
+## Model equations
+
+All quantities are computed separately for women and men.
+
+**Expected suicides.** For district $d$ and year $t$,
+
+$$E_{dt} = \sum_a m_a N_{dat},$$
+
+where $N_{dat}$ is the mid-year population in age group $a$ and $m_a$ is the national suicide rate in that age group, pooled over 1983–2023 (Table R2). Age groups are 0–14, five-year groups from 15–19 to 55–59, and 60 and over. The standardized mortality ratio (SMR) is $O_{dt}/E_{dt}$, where $O_{dt}$ is the observed number of suicides. Multiplying the SMR by the national all-age rate (43.6 per 100,000 person-years for women and 125.0 for men) gives the indirectly age-standardized rate.
+
+**Likelihood.** $O_{dt} \sim \text{Poisson}(\lambda_{dt})$, with $\log E_{dt}$ as an offset, so that the models describe the SMR $\lambda_{dt}/E_{dt}$.
+
+**Linear model.**
+
+$$\log \lambda_{dt} = \log E_{dt} + (\beta_0 + u_{0d}) + (\beta_1 + u_{1d})\,\tau_t,$$
+
+where $\tau_t = (t - 2003)/10$ is time in decades from 2003, $\beta_0$ and $\beta_1$ are the national level in 2003 and the national trend per decade, and $(u_{0d}, u_{1d})$ are district deviations drawn from a common bivariate normal distribution.
+
+**Smooth models.**
+
+$$\log \lambda_{dt} = \log E_{dt} + \beta_0 + f(\tau_t) + f_d(\tau_t),$$
+
+where $f$ is a national smooth trend and $f_d$ is a smooth deviation for district $d$ (a hierarchical generalized additive model with factor smooths), with basis dimensions $K = 5$ and $K = 8$. No model is told which districts lie in East Greenland.
 
 ## Model specification
-
-All models are fitted separately for women and men, with the number of suicides in each district and year as a Poisson outcome and the log of expected suicides as an offset. Time is measured in decades from 2003.
 
 | Model | Formula (brms) | Priors |
 | --- | --- | --- |
@@ -39,11 +75,17 @@ All models are fitted separately for women and men, with the number of suicides 
 | Smooth, K = 8 | as above with `k = 8` | as above |
 | Negative binomial check | smooth model with K = 5 | as above; shape gamma(2, 0.1) |
 
-Sampling: four chains of 4,000 iterations (2,000 warm-up), giving 8,000 draws; `adapt_delta = 0.99`, `max_treedepth = 12`, initial values zero, seed 2026.
+Sampling: four chains of 4,000 iterations (2,000 warm-up), giving 8,000 draws; `adapt_delta = 0.99`, `max_treedepth = 12`, initial values zero, seed 2026. All models converged (Table R4).
 
-The three Poisson models for each sex are combined by stacking on Pareto-smoothed leave-one-out predictive performance (`loo::loo_model_weights`, method "stacking"). The stacked posterior samples draws from each model in proportion to its weight. The same draws are used for 1983, 2003, and 2023 and for the posterior predictive check.
+## Stacking
 
-Following Richardson et al. (2004), a posterior probability of an increase above 0.8 or below 0.2 is treated as evidence of an increase or a decrease. Intervals are equal-tailed 90% credible intervals.
+The three Poisson models for each sex are combined by stacking on leave-one-out predictive performance, approximated by Pareto-smoothed importance sampling (`loo::loo_model_weights`, method "stacking"; Yao et al. 2018). The approximation was reliable for every observation, with all Pareto k values below 0.7 (Table R5). Stacking gave the linear model 85% of the weight for women. For men, the weight was divided between the linear model (42%) and the smooth model with K = 8 (58%), reflecting curvature such as a peak in Tasiilaq around 2003. The comparison of 1983 and 2023 therefore summarizes net change for men.
+
+The stacked posterior samples draws from each model in proportion to its stacking weight. The same draws are used for 1983, 2003, and 2023 and for the posterior predictive check.
+
+## Evidence rule and intervals
+
+Richardson et al. (2004) classify an area as having elevated risk when the posterior probability that its relative risk exceeds one is above 0.8. Following them, a posterior probability of an increase above 0.8 is treated as evidence of an increase. By symmetry, a probability below 0.2 is treated as evidence of a decrease. Intervals are equal-tailed 90% credible intervals.
 
 ## Additional tables
 
@@ -112,7 +154,7 @@ All-age rates: women 43.6, men 125.0 per 100,000. These are the rates used to co
 | Men | 1997–2010 | 3.21 | 3.25 |
 | Men | 2011–2023 | 3.35 | 3.20 |
 
-Direct standardization uses the population of the 17 districts over 1983–2023 as the standard. The periods serve only for this check.
+Direct standardization uses the population of the 17 districts over 1983–2023 as the standard. The periods serve only for this check. The direct and indirect ratios differ by less than 10% in every period.
 
 ### Table R4. MCMC diagnostics
 
@@ -196,7 +238,7 @@ Changes are ratios of the 2023 to the 1983 rate. The typical district is the geo
 | Men | Nuuk | 257 | 408.6 | 79 | 117 (91–147) | 52 (39–67) | 0.44 (0.30–0.66) | <0.01 |
 | Men | Sisimiut | 104 | 168.0 | 77 | 72 (48–100) | 87 (63–124) | 1.22 (0.73–2.13) | 0.73 |
 
-Suicides and expected suicides are totals for 1983–2023. The observed rate is the indirectly age-standardized rate per 100,000 for 1983–2023 (observed divided by expected, times the national all-age rate). Fitted rates are posterior medians per 100,000 from the stacked models, with 90% credible intervals. Change is the ratio of the 2023 to the 1983 fitted rate. Pr(rise) is the posterior probability that the rate rose; to three decimals, Sisimiut (women) is 0.803. Districts are ordered by the observed rate within each sex.
+Suicides and expected suicides are totals for 1983–2023. The observed rate is the indirectly age-standardized rate per 100,000 person-years for 1983–2023 (observed divided by expected, times the national all-age rate). Fitted rates are posterior medians per 100,000 from the stacked models, with 90% credible intervals. Change is the ratio of the 2023 to the 1983 fitted rate. Pr(rise) is the posterior probability that the rate rose; to three decimals, Sisimiut (women) is 0.803. Districts are ordered by the observed rate within each sex.
 
 ### Table R8. Posterior probability that the female-to-male ratio of rates rose, 1983–2023
 
@@ -227,7 +269,7 @@ To three decimals, Qaanaaq is 0.804 and Upernavik 0.796. Computed by combining d
 | Men | Smooth (K = 8) | 1.01 (0.82–1.24) [0.52] | 1.01 (0.83–1.25) [0.53] | 2.51 (2.05–3.08) | 0.95 (0.62–1.47) [0.42] |
 | Men | Negative binomial | 1.04 (0.85–1.27) [0.61] | 1.02 (0.83–1.26) [0.56] | 2.32 (1.90–2.88) | 1.13 (0.62–2.10) [0.63] |
 
-Posterior medians with 90% credible intervals and, in brackets, the posterior probability that the ratio exceeds one. The East Greenland level exceeds one with probability 1.00 under every model. The negative binomial model is the smooth model with K = 5.
+Posterior medians with 90% credible intervals and, in brackets, the posterior probability that the ratio exceeds one. The East Greenland level exceeds one with probability 1.00 under every model. The negative binomial model is the smooth model with K = 5. The national change is computed for the stacked models only (Table R6).
 
 ### Table R10. Posterior predictive check, stacked models
 
@@ -240,6 +282,8 @@ Posterior medians with 90% credible intervals and, in brackets, the posterior pr
 
 The largest male count, 18 suicides in Nuuk in 1984, lies above the replicated interval.
 
-## Reference
+## References
 
 Richardson, S., Thomson, A., Best, N., and Elliott, P. (2004). Interpreting posterior relative risk estimates in disease-mapping studies. *Environmental Health Perspectives* 112(9): 1016–1025. doi:10.1289/ehp.6740.
+
+Yao, Y., Vehtari, A., Simpson, D., and Gelman, A. (2018). Using stacking to average Bayesian predictive distributions (with discussion). *Bayesian Analysis* 13(3): 917–1007. doi:10.1214/17-BA1091.
